@@ -1,6 +1,5 @@
 #include"headers.h"
 
-
 void error(MYSQL* con) {
 	printf("Error : %s\n",mysql_error(con));
 }
@@ -28,6 +27,8 @@ void display(MYSQL* con){
          printf("\n");
      }
      printf("\n\nPress any key to go back to menu.\n");
+     flush();
+     getchar();
 }
 void deleteTuple(MYSQL* con){
 
@@ -64,7 +65,6 @@ void insert(MYSQL* con){
 	strcat(title,"')");
 	char query[500] = {"INSERT INTO library(title,author,pages) VALUES('"};
 	strcat(query,title);
-	printf("\n%s\n",query);
 	if(mysql_real_query(con,query,strlen(query))){
 		error(con);
 	}
@@ -99,18 +99,19 @@ int main(){
 	
 	int choice = 0;
 	while(1){
+		system("clear");
 		displayMenu();
 		printf("\nYour choice: (1,2,3, or 0) ");
 		scanf(" %d",&choice);
 		switch(choice){
 			case 0: exit(0);
-			case 1: //system("clear");
+			case 1: system("clear");
 					display(con);
 					break;
-			case 2: //system("clear");
+			case 2: system("clear");
 					insert(con);
 					break;
-			case 3: //system("clear");
+			case 3: system("clear");
 					deleteTuple(con);
 					break;
 			default: printf("Invalid option!\n\nTry again.\n");
