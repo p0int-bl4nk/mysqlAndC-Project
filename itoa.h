@@ -1,3 +1,15 @@
+//headers
+#include<stdio.h>
+#include<mariadb/mysql.h>
+#include<stdlib.h>
+#include<string.h>
+
+
+//function to flush input buffers
+void flush(){
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)  {}
+}
 
 /*Beware! negative  numbers may cause problems*/
 
