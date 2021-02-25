@@ -132,10 +132,6 @@ int main(){
 			default: printf("Invalid option!\n\nTry again.\n");
 		}
 	}
-	/*insert(con);
-	display(con);
-	deleteTuple(con);
-	putc('\n',stdout);
-	display(con);*/
+	printHello();
 	return 0;
 }
