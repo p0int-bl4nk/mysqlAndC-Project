@@ -28,3 +28,7 @@ void itoa(int n, char s[])
      s[i] = '\0';
      reverse(s);
 }
+
+void printHello(){
+	printf("\nHello world!\n");
+}
