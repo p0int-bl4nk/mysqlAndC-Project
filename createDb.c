@@ -1,5 +1,19 @@
 #include"headers.h"
 
+void DisplayHeader(){
+	printf("\n+");
+	for(int i = 0;i < 122; i++){
+		printf("=");
+	}
+	printf("+");
+	printf("\n|| %5s |%-50s%-51s|| %5s ||\n","Book_ID","|                     Title ","||                      Author","Pages");
+	printf("+");
+	for(int i = 0;i < 122; i++){
+		printf("=");
+	}
+	printf("+\n");
+}
+
 void error(MYSQL* con) {
 	printf("Error : %s\n",mysql_error(con));
 	keyPrompt();
@@ -7,7 +21,7 @@ void error(MYSQL* con) {
 
 void display(MYSQL* con){
 	system("clear");
-	
+	DisplayHeader();	
    	if (mysql_query(con, "SELECT * FROM library")){
         error(con);
         return;
@@ -32,7 +46,16 @@ void display(MYSQL* con){
    
     while ((row = mysql_fetch_row(result))){
         for(int i = 0; i < num_fields; i++){
-            printf("[ %s ]\t ", row[i] ? row[i] : "NULL");
+        	if(i == 0){
+        		printf("[ %8s ]", row[i] ? row[i] : "NULL");
+        		continue;
+        	}
+        	if(i == 3){
+           		printf("[ %6s ]", row[i] ? row[i] : "NULL");
+        		continue;
+        	}
+            printf("[ %47s ]", row[i] ? row[i] : "NULL");
+            
         }
             printf("\n");
     }
@@ -42,6 +65,7 @@ void display(MYSQL* con){
 }
 
 int displayRecordByID(MYSQL* con, int searchID){
+	
 	char searchIDstring[10];
 	itoa(searchID,searchIDstring);
 	char query[250] = {"SELECT * FROM library WHERE book_id="};
@@ -66,8 +90,17 @@ int displayRecordByID(MYSQL* con, int searchID){
 	MYSQL_ROW row = mysql_fetch_row(result);
 
 	NewLine();
-	for(int i = 0;i < numOfFields; i++){
-		printf("[ %s ]\t",row[i]?row[i]:"NULL");
+	DisplayHeader();
+	for(int i = 0; i < numOfFields; i++){
+       	if(i == 0){
+       		printf("[ %8s ]", row[i] ? row[i] : "NULL");
+       		continue;
+       	}
+       	if(i == 3){
+    		printf("[ %6s ]", row[i] ? row[i] : "NULL");
+   	  		continue;
+    	}
+	    printf("[ %47s ]", row[i] ? row[i] : "NULL");         
 	}
 
 	mysql_free_result(result);
@@ -143,7 +176,17 @@ void insert(MYSQL* con){
 }
 
 void displayMenu(){
-	printf("\n1: Show all books\n2: Insert record\n3: Delete record by Book_ID\n4: Search Record By Book_ID\n5: Update Record By Book_ID\n0: Exit\n");
+	printf("\n+");
+	for(int i = 0;i < 39; i++){
+		printf("=");
+	}
+	printf("+");
+	printf("\n[\t1: Show all books\t\t]\n[\t2: Insert Book\t\t\t]\n[\t3: Delete Book by Book_ID\t]\n[\t4: Search Book By Book_ID\t]\n[\t5: Update Book By Book_ID\t]\n[\t9: Shutdown Server\t\t]\n[\t0: Exit\t\t\t\t]\n");
+	printf("+");
+	for(int i = 0;i < 39; i++){
+		printf("=");
+	}
+	printf("+\n");	
 }
 
 void updateRecord(MYSQL* con, int bookID){
@@ -186,6 +229,15 @@ void updateRecord(MYSQL* con, int bookID){
 	keyPrompt();
 }
 
+void shutdownServer(MYSQL* con){
+	if(mysql_shutdown(con,0)){
+		error(con);
+		return;
+	}
+	printf("\nMySQL server is ahutdown.\n");
+	keyPrompt();
+}
+
 int main(){
 
 	MYSQL* con = mysql_init(NULL);
@@ -215,8 +267,7 @@ int main(){
 	while(1){
 		system("clear");
 		displayMenu();
-		printf("\nYour choice: (1,2,3,4,5, or 0) ");
-//		flush();
+		printf("\nYour choice(1,2,3,4,5,9, or 0): ");
 		scanf("%d",&choice);
 		int bookID = 0;
 		switch(choice){
@@ -244,6 +295,8 @@ int main(){
 					flush();
 					scanf("%d",&bookID);
 					updateRecord(con,bookID);
+					break;
+			case 9: shutdownServer(con);
 					break;
 			default: system("clear");
 					 printf("Invalid option!\n\nTry again.\n");
