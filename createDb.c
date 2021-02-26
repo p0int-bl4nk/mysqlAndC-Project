@@ -1,9 +1,8 @@
-
 #include<stdio.h>
 #include<mariadb/mysql.h>
 #include<stdlib.h>
 #include<string.h>
-#include"itoa.h"
+#include"headers.h"
 #include<curses.h>
 
 void error(MYSQL* con) {
@@ -37,11 +36,7 @@ void display(MYSQL* con){
    
          printf("\n");
      }
-     printf("\n\nPress any key to go back to menu.");
-//	timeout(-1);	
-	 
-//	 int c = getch();
-//	 endwin();
+     keyPrompt();
 }
 void deleteTuple(MYSQL* con){
 
@@ -79,6 +74,8 @@ void insert(MYSQL* con){
 	if(mysql_real_query(con,query,strlen(query))){
 		error(con);
 	}
+	printf("\n\nRecord added successfully!\n");
+	keyPrompt();
 }
 
 void displayMenu(){
