@@ -11,10 +11,21 @@ void flush(){
     while ((c = getchar()) != '\n' && c != EOF)  {}
 }
 
+//newline function
+void NewLine(void){
+	printf("\n");
+}
+
+//input prompt
+void keyPrompt(void){
+	printf("\n\nPress any key to go back to menu.\n");
+	flush();
+	getchar();
+}
+
 /*Beware! negative  numbers may cause problems*/
 
-void reverse(char s[])
- {
+void reverse(char s[]){
      int i, j;
      char c;
 
@@ -25,8 +36,7 @@ void reverse(char s[])
      }
 }  
 
-void itoa(int n, char s[])
- {
+void itoa(int n, char s[]){
      int i, sign;
 
      if ((sign = n) < 0)  /* record sign */
@@ -39,8 +49,4 @@ void itoa(int n, char s[])
          s[i++] = '-';
      s[i] = '\0';
      reverse(s);
-}
-
-void printHello(){
-	printf("\nHello world!\n");
 }
