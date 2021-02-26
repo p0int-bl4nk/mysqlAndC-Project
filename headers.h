@@ -11,6 +11,18 @@ void flush(){
     while ((c = getchar()) != '\n' && c != EOF)  {}
 }
 
+//newline function
+void NewLine(void){
+	printf("\n");
+}
+
+//input prompt
+void keyPrompt(void){
+	printf("\n\nPress any key to go back to menu.\n");
+	flush();
+	getchar();
+}
+
 /*Beware! negative  numbers may cause problems*/
 
 void reverse(char s[]){

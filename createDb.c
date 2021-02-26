@@ -22,7 +22,7 @@ void display(MYSQL* con){
    
      while ((row = mysql_fetch_row(result))){
          for(int i = 0; i < num_fields; i++){
-             printf("%s\t ", row[i] ? row[i] : "NULL");
+             printf("[ %s ]\t ", row[i] ? row[i] : "NULL");
          }
    
          printf("\n");
@@ -31,18 +31,63 @@ void display(MYSQL* con){
      flush();
      getchar();
 }
-void deleteTuple(MYSQL* con){
+
+int displayRecordByID(MYSQL* con){
 	system("clear");
-	printf("Enter the Book_id: ");
-	int id = 0;
-	scanf("%d",&id);
+	int searchID = 0;
+	printf("\nEnter Book_ID: ");
+	scanf("%d",&searchID);
+	char searchIDstring[10];
+	itoa(searchID,searchIDstring);
+	char query[250] = {"SELECT * FROM library WHERE book_id="};
+	strcat(query,searchIDstring);
+	if(mysql_query(con,query)){
+		error(con);
+		exit(1);
+	}
+	MYSQL_RES* result = mysql_store_result(con);
+	if(result == NULL){
+		error(con);
+		exit(1);
+	}
+
+	int numOfFields = mysql_num_fields(result);
+	int numOfRows = mysql_num_rows(result);
+	if(numOfRows == 0){
+		printf("\nBook_ID: %d not found!\n",searchID);
+		printf("\n\nPress any key to go back to menu.\n");
+		flush();
+		getchar();	
+		return -1;
+	}
+	MYSQL_ROW row = mysql_fetch_row(result);
+
+	NewLine();
+	for(int i = 0;i < numOfFields; i++){
+		printf("[ %s ]\t",row[i]?row[i]:"NULL");
+	}
+
+	mysql_free_result(result);
+	
+	return searchID;
+}
+
+void deleteRecord(MYSQL* con){
+	system("clear");
+	int id = displayRecordByID(con);
+	if(id == -1){
+		return;
+	}
 	char stringId[11];
 	itoa(id,stringId);
 	char query[500]={"DELETE FROM library WHERE book_id="};
 	strcat(query,stringId);
 	if(mysql_query(con,query)){
 		error(con);
+		keyPrompt();
 	}
+	printf("\nAbove record is deleted!\n");
+	keyPrompt();
 }
 
 void insert(MYSQL* con){
@@ -73,8 +118,9 @@ void insert(MYSQL* con){
 }
 
 void displayMenu(){
-	printf("\n1: Show all books\n2: Insert record\n3: Delete record by Book_ID\n0: Exit\n");
+	printf("\n1: Show all books\n2: Insert record\n3: Delete record by Book_ID\n4: Search Record By Book_ID\n0: Exit\n");
 }
+
 int main(){
 
 	MYSQL* con = mysql_init(NULL);
@@ -103,17 +149,23 @@ int main(){
 	while(1){
 		system("clear");
 		displayMenu();
-		printf("\nYour choice: (1,2,3, or 0) ");
+		printf("\nYour choice: (1,2,3,4, or 0) ");
 		scanf(" %d",&choice);
 		switch(choice){
-			case 0: exit(0);
+			case 0: system("clear");
+					exit(0);
 			case 1: display(con);
 					break;
 			case 2: insert(con);
 					break;
-			case 3: deleteTuple(con);
+			case 3: deleteRecord(con);
 					break;
-			default: printf("Invalid option!\n\nTry again.\n");
+			case 4: displayRecordByID(con);
+					keyPrompt();
+					break;
+			default: system("clear");
+					 printf("Invalid option!\n\nTry again.\n");
+					 keyPrompt();
 		}
 	}
 	
