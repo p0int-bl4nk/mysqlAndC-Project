@@ -18,7 +18,7 @@ void NewLine(void){
 
 //input prompt
 void keyPrompt(void){
-	printf("\n\nPress any key to go back to menu.\n");
+	printf("\n\nPress any key to go back.\n");
 	flush();
 	getchar();
 }
