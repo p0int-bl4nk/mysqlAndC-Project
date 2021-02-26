@@ -5,6 +5,7 @@ void error(MYSQL* con) {
 }
 
 void display(MYSQL* con){
+	system("clear");
    	if (mysql_query(con, "SELECT * FROM library")){
          error(con);
      }
@@ -31,7 +32,7 @@ void display(MYSQL* con){
      getchar();
 }
 void deleteTuple(MYSQL* con){
-
+	system("clear");
 	printf("Enter the Book_id: ");
 	int id = 0;
 	scanf("%d",&id);
@@ -45,6 +46,7 @@ void deleteTuple(MYSQL* con){
 }
 
 void insert(MYSQL* con){
+	system("clear");
 	printf("Book Name: ");
 	char title[50];
 	flush();
@@ -105,18 +107,15 @@ int main(){
 		scanf(" %d",&choice);
 		switch(choice){
 			case 0: exit(0);
-			case 1: system("clear");
-					display(con);
+			case 1: display(con);
 					break;
-			case 2: system("clear");
-					insert(con);
+			case 2: insert(con);
 					break;
-			case 3: system("clear");
-					deleteTuple(con);
+			case 3: deleteTuple(con);
 					break;
 			default: printf("Invalid option!\n\nTry again.\n");
 		}
 	}
-	printHello();
+	
 	return 0;
 }
