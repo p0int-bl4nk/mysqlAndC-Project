@@ -20,7 +20,6 @@ void error(MYSQL* con) {
 
 void display(MYSQL* con){
 	system("clear");
-	DisplayHeader();	
    	if (mysql_query(con, "SELECT * FROM library")){
         error(con);
         return;
@@ -41,7 +40,7 @@ void display(MYSQL* con){
 
    
     MYSQL_ROW row;
-   
+   	DisplayHeader();	
     while ((row = mysql_fetch_row(result))){
         for(int i = 0; i < num_fields; i++){
         	if(i == 0){
@@ -260,29 +259,48 @@ int main(){
 		printf("\nYour choice(1,2,3,4,5,9, or 0): ");
 		scanf("%d",&choice);
 		int bookID = 0;
+		char response = '\0';
 		switch(choice){
 			case 0: system("clear");
 					exit(0);
 			case 1: display(con);
 					keyPrompt();
 					break;
-			case 2: insert(con);
-					keyPrompt();
+			case 2: do{	
+						system("clear");
+						insert(con);
+						display(con);
+						printf("\n\nIf you want to add another record, enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+						flush();
+						response = getchar();						
+					}while(response == 'Y' || response == 'y');
 					break;
-			case 3: system("clear");
-					getBookID(&bookID);
-					deleteRecord(con,bookID);
-					keyPrompt();
+			case 3: do{	
+						system("clear");
+						getBookID(&bookID);
+						deleteRecord(con,bookID);
+						printf("\n\nIf you want to remove another record, enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+						flush();
+						response = getchar();						
+					}while(response == 'Y' || response == 'y');
 					break;
-			case 4: system("clear");
-					getBookID(&bookID);
-					displayRecordByID(con,bookID);
-					keyPrompt();
+			case 4: do{	
+						system("clear");
+						getBookID(&bookID);
+						displayRecordByID(con,bookID);
+						printf("\n\nIf you want to look up another record, enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+						flush();
+						response = getchar();						
+					}while(response == 'Y' || response == 'y');
 					break;
-			case 5: system("clear");
-					getBookID(&bookID);
-					updateRecord(con,bookID);
-					keyPrompt();
+			case 5: do{	
+						system("clear");
+						getBookID(&bookID);
+						updateRecord(con,bookID);
+						printf("\n\nIf you want to edit another record, enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+						flush();
+						response = getchar();						
+					}while(response == 'Y' || response == 'y');
 					break;
 			case 9: shutdownServer(con);
 					keyPrompt();
