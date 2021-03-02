@@ -5,11 +5,20 @@
 #include<string.h>
 
 
+
 //function to flush input buffers
 void flush(){
     int c;
     while ((c = getchar()) != '\n' && c != EOF)  {}
 }
+
+//Take Book_id input
+void getBookID(int* bookID){
+	printf("\nEnter Book_ID: ");
+	flush();
+	scanf("%d",bookID);
+}
+
 
 //newline function
 void NewLine(void){

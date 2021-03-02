@@ -84,7 +84,6 @@ int displayRecordByID(MYSQL* con, int searchID){
 	int numOfRows = mysql_num_rows(result);
 	if(numOfRows == 0){
 		printf("\nBook_ID: %d not found!\n",searchID);
-		keyPrompt();	
 		return -1;
 	}
 	MYSQL_ROW row = mysql_fetch_row(result);
@@ -125,7 +124,6 @@ void deleteRecord(MYSQL* con,int bookID){
 	flush();
 	if((c = getchar()) != 'y'){
 		printf("\nDeletion aborted!\n");
-		keyPrompt();
 		return;
 	}
 	
@@ -135,7 +133,6 @@ void deleteRecord(MYSQL* con,int bookID){
 	}
 	
 	printf("\n\nAbove record is deleted!\n");
-	keyPrompt();
 }
 
 void insert(MYSQL* con){
@@ -277,22 +274,17 @@ int main(){
 			case 2: insert(con);
 					break;
 			case 3: system("clear");
-					printf("\nEnter Book_ID: ");
-					flush();
-					scanf("%d",&bookID);
+					getBookID(&bookID);
 					deleteRecord(con,bookID);
+					keyPrompt();
 					break;
 			case 4: system("clear");
-					printf("\nEnter Book_ID: ");
-					flush();
-					scanf("%d",&bookID);
+					getBookID(&bookID);
 					displayRecordByID(con,bookID);
 					keyPrompt();
 					break;
 			case 5: system("clear");
-					printf("\nEnter Book_ID: ");
-					flush();
-					scanf("%d",&bookID);
+					getBookID(&bookID);
 					updateRecord(con,bookID);
 					break;
 			case 9: shutdownServer(con);
