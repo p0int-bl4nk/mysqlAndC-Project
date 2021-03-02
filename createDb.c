@@ -234,8 +234,7 @@ void shutdownServer(MYSQL* con){
 		error(con);
 		return;
 	}
-	printf("\nMySQL server is ahutdown.\n");
-	keyPrompt();
+	printf("\nMySQL server is shutdown.\n");
 }
 
 int main(){
@@ -297,6 +296,7 @@ int main(){
 					updateRecord(con,bookID);
 					break;
 			case 9: shutdownServer(con);
+					keyPrompt();
 					break;
 			default: system("clear");
 					 printf("Invalid option!\n\nTry again.\n");
