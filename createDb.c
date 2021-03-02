@@ -16,7 +16,6 @@ void DisplayHeader(){
 
 void error(MYSQL* con) {
 	printf("Error : %s\n",mysql_error(con));
-	keyPrompt();
 }
 
 void display(MYSQL* con){
@@ -37,7 +36,6 @@ void display(MYSQL* con){
 	int numOfRows = mysql_num_rows(result);
 	if(numOfRows == 0){
 		printf("\n\nNo records found!\n");
-		keyPrompt();	
 		return;
 	}
 
@@ -61,7 +59,6 @@ void display(MYSQL* con){
     }
 
     mysql_free_result(result);
-    keyPrompt();
 }
 
 int displayRecordByID(MYSQL* con, int searchID){
@@ -109,9 +106,8 @@ int displayRecordByID(MYSQL* con, int searchID){
 
 void deleteRecord(MYSQL* con,int bookID){
 	int id = displayRecordByID(con,bookID);
-	if(id == -1){
+	if(id == -1)
 		return;
-	}
 	
 	char stringId[11];
 	itoa(id,stringId);
@@ -169,7 +165,6 @@ void insert(MYSQL* con){
 	}
 	
 	printf("\n\nRecord added successfully!\n");
-	keyPrompt();
 }
 
 void displayMenu(){
@@ -187,8 +182,8 @@ void displayMenu(){
 }
 
 void updateRecord(MYSQL* con, int bookID){
-	displayRecordByID(con,bookID);
-
+	if(displayRecordByID(con,bookID) == -1)
+		return;
 	char bookIDstring[10] = {};	
 	itoa(bookID,bookIDstring);
 
@@ -223,7 +218,6 @@ void updateRecord(MYSQL* con, int bookID){
 	}
 
 	printf("\n\nUpdate successful!\n");
-	keyPrompt();
 }
 
 void shutdownServer(MYSQL* con){
@@ -270,8 +264,10 @@ int main(){
 			case 0: system("clear");
 					exit(0);
 			case 1: display(con);
+					keyPrompt();
 					break;
 			case 2: insert(con);
+					keyPrompt();
 					break;
 			case 3: system("clear");
 					getBookID(&bookID);
@@ -286,6 +282,7 @@ int main(){
 			case 5: system("clear");
 					getBookID(&bookID);
 					updateRecord(con,bookID);
+					keyPrompt();
 					break;
 			case 9: shutdownServer(con);
 					keyPrompt();
