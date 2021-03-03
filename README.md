@@ -9,3 +9,5 @@ This code can --
 * Search record
 * Display all records, and
 * Shutdown server
+
+I wrote and compiled this code on Termux, Android 10, Clang 11.1
