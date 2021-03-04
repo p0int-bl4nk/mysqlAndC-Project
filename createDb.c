@@ -59,7 +59,7 @@ void display(MYSQL* con){
     mysql_free_result(result);
 }
 
-int displayRecordByID(MYSQL* con, int searchID){
+int searchByID(MYSQL* con, int searchID){
 	
 	char searchIDstring[10];
 	itoa(searchID,searchIDstring);
@@ -103,7 +103,7 @@ int displayRecordByID(MYSQL* con, int searchID){
 }
 
 void deleteRecord(MYSQL* con,int bookID){
-	int id = displayRecordByID(con,bookID);
+	int id = searchByID(con,bookID);
 	if(id == -1)
 		return;
 	
@@ -171,7 +171,7 @@ void displayMenu(){
 		printf("=");
 	}
 	printf("+");
-	printf("\n[\t1: Show all books\t\t]\n[\t2: Insert Book\t\t\t]\n[\t3: Delete Book by Book_ID\t]\n[\t4: Search Book By Book_ID\t]\n[\t5: Update Book By Book_ID\t]\n[\t9: Shutdown Server\t\t]\n[\t0: Exit\t\t\t\t]\n");
+	printf("\n[\t1: Show books\t\t\t]\n[\t2: Insert Book\t\t\t]\n[\t3: Delete Book by Book_ID\t]\n[\t4: Edit Book Info By Book_ID\t]\n[\t9: Shutdown Server\t\t]\n[\t0: Exit\t\t\t\t]\n");
 	printf("+");
 	for(int i = 0;i < 39; i++){
 		printf("=");
@@ -180,7 +180,7 @@ void displayMenu(){
 }
 
 void updateRecord(MYSQL* con, int bookID){
-	if(displayRecordByID(con,bookID) == -1)
+	if(searchByID(con,bookID) == -1)
 		return;
 	char bookIDstring[10] = {};	
 	itoa(bookID,bookIDstring);
@@ -226,6 +226,100 @@ void shutdownServer(MYSQL* con){
 	printf("\nMySQL server is shutdown.\n");
 }
 
+void searchByTitle(MYSQL* con){
+	printf("\n\nEnter search string:\t");
+	char searchTitle[52] = {};
+	flush();
+	scanf("%[^\n]s*c",searchTitle);
+	char query[250] = {"SELECT * FROM library WHERE title LIKE '%"};
+	strcat(query,searchTitle);
+	strcat(query,"%'");
+	if(mysql_query(con,query)){
+		error(con);
+		return;
+	}
+	MYSQL_RES* result = mysql_store_result(con);
+	if(result == NULL){
+		error(con);
+		return;
+	}
+	
+	int numOfFields = mysql_num_fields(result);
+	int numOfRows = mysql_num_rows(result);
+	if(numOfRows == 0){
+		printf("\nNo match found for %s!\n",searchTitle);
+		return;
+	}
+	else
+		printf("\n%d match(s) found for \"%s\"!\n\n",numOfRows,searchTitle);
+	
+	MYSQL_ROW row;
+	   	DisplayHeader();	
+	    while ((row = mysql_fetch_row(result))){
+	        for(int i = 0; i < numOfFields; i++){
+	        	if(i == 0){
+	        		printf("[ %8s ]", row[i] ? row[i] : "NULL");
+	        		continue;
+	        	}
+	        	if(i == 3){
+	           		printf("[ %6s ]", row[i] ? row[i] : "NULL");
+	        		continue;
+	        	}
+	            printf("[ %47s ]", row[i] ? row[i] : "NULL");
+	            
+	        }
+	        printf("\n");
+	    }
+	
+	    mysql_free_result(result);
+}
+
+void searchByAuthor(MYSQL* con){
+	printf("\n\nEnter search string:\t");
+	char searchAuthor[52] = {};
+	flush();
+	scanf("%[^\n]s*c",searchAuthor);
+	char query[250] = {"SELECT * FROM library WHERE author LIKE '%"};
+	strcat(query,searchAuthor);
+	strcat(query,"%'");
+	if(mysql_query(con,query)){
+		error(con);
+		return;
+	}
+	MYSQL_RES* result = mysql_store_result(con);
+	if(result == NULL){
+		error(con);
+		return;
+	}
+	
+	int numOfFields = mysql_num_fields(result);
+	int numOfRows = mysql_num_rows(result);
+	if(numOfRows == 0){
+		printf("\nNo match found for %s!\n",searchAuthor);
+		return;
+	}
+	else
+		printf("\n%d match(s) found for \"%s\"!\n\n",numOfRows,searchAuthor);
+	
+	MYSQL_ROW row;
+	DisplayHeader();	
+	while ((row = mysql_fetch_row(result))){
+	    for(int i = 0; i < numOfFields; i++){
+	       	if(i == 0){
+	       		printf("[ %8s ]", row[i] ? row[i] : "NULL");
+	       		continue;
+	       	}
+	       	if(i == 3){
+	       		printf("[ %6s ]", row[i] ? row[i] : "NULL");
+	       		continue;
+	       	}
+	        printf("[ %47s ]", row[i] ? row[i] : "NULL");
+        }
+        printf("\n");
+    }	
+    mysql_free_result(result);
+}
+
 int connectToMysql(MYSQL* con){
 
 	char username[30] = {};
@@ -243,6 +337,68 @@ int connectToMysql(MYSQL* con){
 		return 1;
 	}
 	return 0;
+}
+
+void search(MYSQL* con){
+
+	int choice = 0;
+	int bookID = 0;
+	char response = '\0';
+	flush();
+	
+	while(1){
+		system("clear");
+		printf("\n+");
+		for(int i = 0;i < 39; i++){
+			printf("=");
+		}
+		printf("+");
+		printf("\n[\t1: Show all books\t\t]\n[\t2: Search Book By Book_ID\t]\n[\t3: Search Book By Title\t\t]\n[\t4: Search Book By Author\t]\n[\t0: Exit\t\t\t\t]\n");
+		printf("+");
+		for(int i = 0;i < 39; i++){
+			printf("=");
+		}
+		printf("+\n");
+	
+		printf("\nYour choice(1,2,3,4, or 0): ");
+		scanf("%d",&choice);
+		
+	switch(choice){
+		case 0: system("clear");
+				return;
+		case 1: display(con);
+				keyPrompt();
+				break;
+		case 2:do{	
+					system("clear");
+					getBookID(&bookID);
+					searchByID(con,bookID);
+					printf("\n\nLook up another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+					flush();
+					response = getchar();						
+				}while(response == 'Y' || response == 'y');
+				break;
+		case 3:do{	
+					system("clear");
+					searchByTitle(con);
+					printf("\n\nLook up another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+					flush();
+					response = getchar();						
+				}while(response == 'Y' || response == 'y');
+				break;
+		case 4:do{	
+					system("clear");
+					searchByAuthor(con);
+					printf("\n\nLook up another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+					flush();
+					response = getchar();						
+				}while(response == 'Y' || response == 'y');
+				break;
+		default:system("clear");
+				printf("Invalid option!\n\nTry again.\n");
+				keyPrompt();
+	}
+	}
 }
 
 int main(){
@@ -267,14 +423,14 @@ int main(){
 			exit(1);
 		flush();
 	}
-	if(mysql_query(con,"USE db2")){
-		if(mysql_query(con,"CREATE DATABASE db2")){
+	if(mysql_query(con,"USE db1")){
+		if(mysql_query(con,"CREATE DATABASE db1")){
 			error(con);
 			mysql_close(con);
 			exit(1);
 		}
 
-		if(mysql_query(con,"USE db2")){
+		if(mysql_query(con,"USE db1")){
 			error(con);
 			mysql_close(con);
 			exit(1);
@@ -286,7 +442,7 @@ int main(){
 			exit(1);
 		}
 	}
-	
+
 	int choice = 0;
 	while(1){
 		system("clear");
@@ -298,8 +454,7 @@ int main(){
 		switch(choice){
 			case 0: system("clear");
 					exit(0);
-			case 1: display(con);
-					keyPrompt();
+			case 1: search(con);
 					break;
 			case 2: do{	
 						system("clear");
@@ -322,15 +477,6 @@ int main(){
 			case 4: do{	
 						system("clear");
 						getBookID(&bookID);
-						displayRecordByID(con,bookID);
-						printf("\n\nLook up another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
-						flush();
-						response = getchar();						
-					}while(response == 'Y' || response == 'y');
-					break;
-			case 5: do{	
-						system("clear");
-						getBookID(&bookID);
 						updateRecord(con,bookID);
 						printf("\n\nEdit another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
 						flush();
@@ -348,6 +494,5 @@ int main(){
 					 keyPrompt();
 		}
 	}
-	
 	return 0;
 }
