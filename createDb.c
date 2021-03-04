@@ -227,6 +227,25 @@ void shutdownServer(MYSQL* con){
 	printf("\nMySQL server is shutdown.\n");
 }
 
+int connectToMysql(MYSQL* con){
+
+	char username[30] = {};
+	char password[30] = {};
+
+	printf("\n\nUsername: \t");
+	scanf("%[^\n]s*c",username);
+	printf("\n\nPassword: \t");
+	flush();
+	scanf("%[^\n]s*c",password);
+		
+	if(mysql_real_connect(con,"localhost",username,password,"db1",0,NULL,0) == NULL){
+		NewLine();
+		error(con);
+		return 1;
+	}
+	return 0;
+}
+
 int main(){
 
 	MYSQL* con = mysql_init(NULL);
@@ -234,12 +253,21 @@ int main(){
 		error(con);
 		exit(1);
 	}
-	if(mysql_real_connect(con,"localhost","root","root","db1",0,NULL,0) == NULL){
-		error(con);
-		mysql_close(con);
-		exit(1);
+	char response = '\0';
+	while(1){
+		system("clear");
+		
+		if(connectToMysql(con) == 0)
+			break;
+			
+		printf("\n\nTry again? Enter 'Y' or 'y';\t");
+		flush();
+		response = getchar();
+		if(response != 'y' &&  response != 'Y')
+			exit(1);
+		flush();
 	}
-	/*if(mysql_query(con,"use db1")){
+	/*	if(mysql_query(con,"use db1")){
 		if(mysql_query(con,"create database db1")){
 			error(con);
 			mysql_close(con);
@@ -303,7 +331,10 @@ int main(){
 					}while(response == 'Y' || response == 'y');
 					break;
 			case 9: shutdownServer(con);
-					keyPrompt();
+					flush();
+					getchar();
+					system("clear");
+					exit(0);					
 					break;
 			default: system("clear");
 					 printf("Invalid option!\n\nTry again.\n");
