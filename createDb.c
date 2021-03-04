@@ -1,5 +1,4 @@
 #include"headers.h"
-
 void DisplayHeader(){
 	printf("\n+");
 	for(int i = 0;i < 122; i++){
@@ -238,7 +237,7 @@ int connectToMysql(MYSQL* con){
 	flush();
 	scanf("%[^\n]s*c",password);
 		
-	if(mysql_real_connect(con,"localhost",username,password,"db1",0,NULL,0) == NULL){
+	if(mysql_real_connect(con,"localhost",username,password,NULL,0,NULL,CLIENT_MULTI_STATEMENTS) == NULL){
 		NewLine();
 		error(con);
 		return 1;
@@ -253,6 +252,7 @@ int main(){
 		error(con);
 		exit(1);
 	}
+	
 	char response = '\0';
 	while(1){
 		system("clear");
@@ -267,18 +267,25 @@ int main(){
 			exit(1);
 		flush();
 	}
-	/*	if(mysql_query(con,"use db1")){
-		if(mysql_query(con,"create database db1")){
+	if(mysql_query(con,"USE db2")){
+		if(mysql_query(con,"CREATE DATABASE db2")){
 			error(con);
 			mysql_close(con);
 			exit(1);
 		}
-		if(mysql_query(con,"create table library(book_id INT PRIMARY KEY AUTO_INCREMENT,title VARCHAR(50),author VARCHAR(50),pages INT)")){
-				error(con);
-				mysql_close(con);
-				exit(1);
+
+		if(mysql_query(con,"USE db2")){
+			error(con);
+			mysql_close(con);
+			exit(1);
+		}	
+
+		if(mysql_query(con,"CREATE TABLE library(book_id INT PRIMARY KEY AUTO_INCREMENT,title VARCHAR(50),author VARCHAR(50),pages INT)")){
+			error(con);
+			mysql_close(con);
+			exit(1);
 		}
-	}*/
+	}
 	
 	int choice = 0;
 	while(1){
@@ -298,7 +305,7 @@ int main(){
 						system("clear");
 						insert(con);
 						display(con);
-						printf("\n\nIf you want to add another record, enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+						printf("\n\nAdd another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
 						flush();
 						response = getchar();						
 					}while(response == 'Y' || response == 'y');
@@ -307,7 +314,7 @@ int main(){
 						system("clear");
 						getBookID(&bookID);
 						deleteRecord(con,bookID);
-						printf("\n\nIf you want to remove another record, enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+						printf("\n\nRemove another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
 						flush();
 						response = getchar();						
 					}while(response == 'Y' || response == 'y');
@@ -316,7 +323,7 @@ int main(){
 						system("clear");
 						getBookID(&bookID);
 						displayRecordByID(con,bookID);
-						printf("\n\nIf you want to look up another record, enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+						printf("\n\nLook up another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
 						flush();
 						response = getchar();						
 					}while(response == 'Y' || response == 'y');
@@ -325,7 +332,7 @@ int main(){
 						system("clear");
 						getBookID(&bookID);
 						updateRecord(con,bookID);
-						printf("\n\nIf you want to edit another record, enter 'Y' or 'y',\n(any other key will take you back to menu): ");
+						printf("\n\nEdit another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
 						flush();
 						response = getchar();						
 					}while(response == 'Y' || response == 'y');
