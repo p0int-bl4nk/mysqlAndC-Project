@@ -1,4 +1,16 @@
 #include"headers.h"
+
+void error(MYSQL* con) {
+	printf("Error : %s\n",mysql_error(con));
+}
+
+void runQuery(MYSQL* con,const char* query){
+	if(mysql_query(con,query)){
+		error(con);
+		return;
+	}
+}
+
 void DisplayHeader(){
 	printf("\n+");
 	for(int i = 0;i < 122; i++){
@@ -13,16 +25,12 @@ void DisplayHeader(){
 	printf("+\n");
 }
 
-void error(MYSQL* con) {
-	printf("Error : %s\n",mysql_error(con));
-}
+
 
 void display(MYSQL* con){
 	system("clear");
-   	if (mysql_query(con, "SELECT * FROM library")){
-        error(con);
-        return;
-    }
+	char* query = {"SELECT * FROM library"};
+   	runQuery(con,query);
    
     MYSQL_RES *result = mysql_store_result(con);
     if (result == NULL){
@@ -121,15 +129,12 @@ void deleteRecord(MYSQL* con,int bookID){
 		return;
 	}
 	
-	if(mysql_query(con,query)){
-		error(con);
-		return;
-	}
+	runQuery(con,query);
 	
 	printf("\n\nAbove record is deleted!\n");
 }
 
-void insert(MYSQL* con){
+void insertRecord(MYSQL* con){
 	system("clear");
 	
 	printf("Book Name: ");
@@ -157,10 +162,7 @@ void insert(MYSQL* con){
 	strcat(query,stringPages);
 	strcat(query,"')");
 	
-	if(mysql_real_query(con,query,strlen(query))){
-		error(con);
-		return;
-	}
+	runQuery(con,query);
 	
 	printf("\n\nRecord added successfully!\n");
 }
@@ -179,45 +181,6 @@ void displayMenu(){
 	printf("+\n");	
 }
 
-void updateRecord(MYSQL* con, int bookID){
-	if(searchByID(con,bookID) == -1)
-		return;
-	char bookIDstring[10] = {};	
-	itoa(bookID,bookIDstring);
-
-	printf("\n\nNew title: ");
-	char newTitle[50] = {};
-	flush();
-	scanf("%[^\n]s*c",newTitle);
-	
-	printf("New author: ");
-	char newAuthor[50];
-	flush();
-	scanf("%[^\n]s*c",newAuthor);
-	
-	printf("New number of pages: ");
-	int newPages = 0;
-	scanf("%d",&newPages);
-	char stringNewPages[10];
-	itoa(newPages,stringNewPages);
-	
-	char query[250] = {"UPDATE library SET title='"};
-	strcat(query,newTitle);
-	strcat(query,"',author='");
-	strcat(query,newAuthor);
-	strcat(query,"',pages=");
-	strcat(query,stringNewPages);
-	strcat(query," WHERE book_id=");
-	strcat(query,bookIDstring);
-
-	if(mysql_query(con,query)){
-		error(con);
-		return;
-	}
-
-	printf("\n\nUpdate successful!\n");
-}
-
 void shutdownServer(MYSQL* con){
 	if(mysql_shutdown(con,0)){
 		error(con);
@@ -234,10 +197,7 @@ void searchByTitle(MYSQL* con){
 	char query[250] = {"SELECT * FROM library WHERE title LIKE '%"};
 	strcat(query,searchTitle);
 	strcat(query,"%'");
-	if(mysql_query(con,query)){
-		error(con);
-		return;
-	}
+	runQuery(con,query);
 	MYSQL_RES* result = mysql_store_result(con);
 	if(result == NULL){
 		error(con);
@@ -282,10 +242,7 @@ void searchByAuthor(MYSQL* con){
 	char query[250] = {"SELECT * FROM library WHERE author LIKE '%"};
 	strcat(query,searchAuthor);
 	strcat(query,"%'");
-	if(mysql_query(con,query)){
-		error(con);
-		return;
-	}
+	runQuery(con,query);
 	MYSQL_RES* result = mysql_store_result(con);
 	if(result == NULL){
 		error(con);
@@ -401,6 +358,94 @@ void search(MYSQL* con){
 	}
 }
 
+void editRecord(MYSQL* con, int bookID){
+	char bookIDstring[10] = {};	
+	itoa(bookID,bookIDstring);
+	while(1){
+			system("clear");
+			if(searchByID(con,bookID) == -1)
+				return;
+			printf("\n\n\n\tWhat do you want to update?\n");
+			printf("\t\t* (t)itle,\n");
+			printf("\t\t* (a)uthor,\n");
+			printf("\t\t* (p)ages,\n");
+			printf("\t\t* all of the above (f)ields,\n");
+			printf("\t\t* (r)eturn\n\t(f,t,a,p or r): ");
+			char response = '\0';
+			flush();
+			response = getchar();
+			
+			char query[250] = {"UPDATE library SET "};
+			char newTitle[50] = {};
+			char newAuthor[50] = {};
+			int newPages = 0;
+			char stringNewPages[10];
+			switch(response){
+				case 't': strcat(query,"title='");
+						  printf("\n\nNew title: ");
+						  flush();
+						  scanf("%[^\n]s*c",newTitle);
+						  strcat(query,newTitle);
+						  strcat(query,"'");
+						  strcat(query," WHERE book_id=");
+						  strcat(query,bookIDstring);
+						  runQuery(con,query);
+						  break;
+				case 'a': strcat(query,"author='");
+						  printf("\n\nNew Author: ");
+						  flush();
+						  scanf("%[^\n]s*c",newAuthor);
+						  strcat(query,newAuthor);
+						  strcat(query,"'");
+						  strcat(query," WHERE book_id=");
+						  strcat(query,bookIDstring);
+						  runQuery(con,query);
+						  break;
+				case 'p': strcat(query,"pages=");
+						  printf("\n\nNew No. of Pages: ");
+						  flush();
+						  scanf("%d",&newPages);
+						  itoa(newPages,stringNewPages);
+						  strcat(query,stringNewPages);
+						  strcat(query," WHERE book_id=");
+						  strcat(query,bookIDstring);
+						  runQuery(con,query);		
+						  break;	
+				case 'f':strcat(query,"title='");
+				 
+						printf("\n\nNew title: ");
+						flush();
+						scanf("%[^\n]s*c",newTitle);
+						
+						printf("New author: ");
+						flush();
+						scanf("%[^\n]s*c",newAuthor);
+					
+						printf("New number of pages: ");
+						scanf("%d",&newPages);
+						itoa(newPages,stringNewPages);
+							
+						strcat(query,newTitle);
+						strcat(query,"',author='");
+						strcat(query,newAuthor);
+						strcat(query,"',pages=");
+						strcat(query,stringNewPages);
+						strcat(query," WHERE book_id=");
+						strcat(query,bookIDstring);
+					
+						runQuery(con,query);
+						break;
+				case 'r': system("clear");
+						  return;
+				default: printf("Invalid option!\n\nTry again.\n");
+						 keyPrompt();	  				 
+			}
+	}
+
+	printf("\n\nUpdate successful!\n");
+}
+
+
 int main(){
 
 	MYSQL* con = mysql_init(NULL);
@@ -442,7 +487,7 @@ int main(){
 			exit(1);
 		}
 	}
-
+	
 	int choice = 0;
 	while(1){
 		system("clear");
@@ -458,7 +503,7 @@ int main(){
 					break;
 			case 2: do{	
 						system("clear");
-						insert(con);
+						insertRecord(con);
 						display(con);
 						printf("\n\nAdd another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
 						flush();
@@ -477,7 +522,7 @@ int main(){
 			case 4: do{	
 						system("clear");
 						getBookID(&bookID);
-						updateRecord(con,bookID);
+						editRecord(con,bookID);
 						printf("\n\nEdit another record? Enter 'Y' or 'y',\n(any other key will take you back to menu): ");
 						flush();
 						response = getchar();						
